@@ -1,10 +1,11 @@
-import React,{useEffect} from 'react';
+import React,{useEffect,useState} from 'react';
 import firebase from './firebase/firebase'
-import {BrowserRouter,Route,Link} from 'react-router-dom'
+import {BrowserRouter,Route,Link,Switch, Redirect} from 'react-router-dom'
 /////////////////////////////😇 components 😇 //////////////////////////////////////////////////
 import Login from './components/Login'
-
+import UserHomepage from './components/UserHomepage'
 import Signup from './components/Signup'
+import signOut from './firebase/signOut'
 /////////////////////////////😇 components 😇 //////////////////////////////////////////////////
 
 /////////////////////////////↪️ Hooks ↩️ //////////////////////////////////////////////////
@@ -16,6 +17,7 @@ import useSignup from './hooks/useSignup'
 
 
 import './App.css';
+import signout from './firebase/signOut';
 
 function App() {
 
@@ -31,23 +33,39 @@ function App() {
     email:'',
     password:''
   })
+  const [userData,SetuserData]= useState({})
+ 
+
+
+
+
   ///////////////////////////😆 get user information ///😆///////////////////////////////
+
+  
   ////useEfffect for getting logged in users data ex:displayName ,uuid ,etc.../////
 
-  useEffect(()=>{
+  const user = firebase.auth().currentUser
+
+    useEffect(()=>
+     {
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         setLoggedIn(true)
         // alert('user signed in')
         // User is signed in.
-        var displayName = user.displayName;
-        var email = user.email;
-        var emailVerified = user.emailVerified;
-        var photoURL = user.photoURL;
-        var isAnonymous = user.isAnonymous;
-        var uid = user.uid;
-        var providerData = user.providerData;
-        console.log(email)
+       const userInfo = {
+        displayName : user.displayName,
+        email : user.email,
+        emailVerified : user.emailVerified,
+        photoURL : user.photoURL,
+        isAnonymous : user.isAnonymous,
+        uid : user.uid,
+        providerData : user.providerData
+      }
+      SetuserData(userInfo)
+        
+     
+       
         // ...
       } else {
         setLoggedIn(false)
@@ -56,17 +74,10 @@ function App() {
         // ...
       }
     });
-  },[firebase.auth().currentUser])
+  },[])
+  
 
-  ///////////////////////////😆 get user information ///😆///////////////////////////////
-
-
-
-  ////////////////////////////////////// user Log in hooks & useEffect /////////////////////////////////////
-
-
-  ////////////////////////////////////user sign up //////////////////////////////////////////////////////
-
+  
 
   const [signupvalue,addSignValue,addSignData,newSignData] = useSignup({
     username:'',
@@ -80,43 +91,78 @@ function App() {
 
   return (
     <div className="App">
-    <BrowserRouter>
+   
+    <BrowserRouter>    
+    {logged ?  <Redirect to={`/${userData.displayName || userData.uid}/homepage`}/>:null}
+    {/* {!userData.displayName ? setDisplay(true) : console.log('name')} */}
+    {/* {displayName ? <DisplayMortal /> : null} */}
+    
       <nav>
 
-/////////////////////////////🔗 link to landing page 🔗//////////////////////////////////////////////////
-    
-        <Link to ={'/'}>Home</Link>
-/////////////////////////////🔗 link to landing page 🔗//////////////////////////////////////////////////
+      {logged ?
+      <div>
+        <Link to={`/${userData.displayName || userData.uid}/homepage`}>Homepage</Link>
+        <Link to={`/${userData.displayName || userData.uid}/messages`}>Messages</Link>
+        <Link to={`/${userData.displayName || userData.uid}/store`}>Store</Link>
+        <a onClick={signout}>Sign out</a>
 
-/////////////////////////////🔗 link to log in page 🔗//////////////////////////////////////////////////
+
+      </div>
+
+
+        :
+        
+        <div> 
+        <Link to ={'/'}>Home</Link>
+
 
         <Link to={'/login'}>Login</Link>
-/////////////////////////////🔗 link to log in page 🔗//////////////////////////////////////////////////
 
 
-/////////////////////////////🔗 link to sign up page 🔗//////////////////////////////////////////////////
 
         <Link to={'/sign-up'}>Sign Up</Link>
-/////////////////////////////🔗 link to sign up page 🔗//////////////////////////////////////////////////
-
+        </div>
+        
+      }
 
 
       </nav>
+         <Route to='/:user/page'>
+
+        </Route>
+
+        <Route to='/store/:item'>
+
+        </Route>
+
+        <Route to='/:user/store'>
+
+        </Route>
+
+        <Route to='/:user/messages'>
+
+        </Route>
+
+        <Route to='/:user/homepage'>
+          <UserHomepage userData={userData} logged={logged}  />
+
+        </Route>
       
-      <Route path='/login'>
-        <Login addData={addLoginData} addValue={addLoginValue}/>
-      </Route>
+        <Route path='/login'>
+          <Login addData={addLoginData} addValue={addLoginValue}/>
+        </Route>
 
-      <Route path='/sign-up'>
-       <Signup addSignData={addSignData} addSignValue={addSignValue} setLoggedIn={setLoggedIn} />
-      </Route>
+        <Route path='/sign-up'>
+        <Signup addSignData={addSignData} addSignValue={addSignValue} setLoggedIn={setLoggedIn} />
+        </Route>
 
-      <Route path={'/'}>
+        <Route exact path={'/'}>
 
-      </Route>
-    
+        </Route>
       
+        
 
+      
     </BrowserRouter>
    
 

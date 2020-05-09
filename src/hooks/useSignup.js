@@ -29,33 +29,22 @@ const useSignup = (initial)=>{
 
         // setLoggedIn(true)
         firebase.auth().signInWithEmailAndPassword(value.email || '', value.password||'')
-        firebase.database().ref('userData/' + firebase.auth().currentUser.uid ).set({
-            email:value.email,
-            username:value.username,
+        .then(()=>{
+         
+        console.log('success')
 
         })
-////////////////😄//////////😄///////💯////💯////💯///// 😄//////😄//////////////////////////////////
+      })
+        
+        
 
 
 
-
-////////////////😠//////////😠///if cannot find current user/// 😠//////😠////////////////////////////
-
-        .catch(err=>console.log(err.message))
-
-////////////////😠//////////😠/////////😞//////😞/////.😞/////😠//////😠////////////////////////////
-
-
-
-
-/////////////////✔ ✔ ✔ ✔ ✔ ✔ validate to see if i signup is succcess ✔ ✔ ✔ ✔ ✔ /////////////////////////
-
-
-        console.log('success')
+        
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     
-    })
+    
     
     
     .catch(function(error) {
